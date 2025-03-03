@@ -19,6 +19,7 @@ import PersonalityResults from './components/activities/personality/PersonalityR
 import PrivateRoute from './components/auth/PrivateRoute';
 import { PersonalityProvider } from './components/activities/personality/PersonalityContext';
 import Onboarding from './components/onboarding/Onboarding';
+import { Payment } from './components/payment/Payment';
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
           <ChatProvider>
             <Toaster position="top-center" />
             <Routes>
+            <Route path="/payment" element={<Payment />} />
               {/* Public routes - accessible without authentication */}
               <Route element={<AuthLayout />}>
                 <Route path="/login" element={<Login />} />
