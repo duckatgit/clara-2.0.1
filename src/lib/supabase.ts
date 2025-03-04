@@ -20,7 +20,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Log Supabase client initialization
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange((event, session) => { 
   console.log("Supabase auth state changed:", event, session?.user?.id);
 });
 
@@ -217,7 +217,6 @@ export const api = {
         .select("daily_message_count, message_limit, is_premium")
         .eq("user_id", session.user.id)
         .single();
-      console.log("error-->",error)
       if (error) throw error;
 
       // Check if no subscription data was found
