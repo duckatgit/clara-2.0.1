@@ -100,17 +100,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         if (event === "SIGNED_IN" && session?.user) {
           try {
+            console.log("Fetching user preferences...",session.user.id);
             const { data: preferences, error: prefError } = await supabase
               .from("user_preferences")
               .select("*")
               .eq("user_id", session.user.id)
               .maybeSingle();
-
+            console.log("User preferences fetched==>:", preferences);
             if (prefError && prefError.code !== "PGRST116") {
               console.error("Preferences fetch error:", prefError);
               throw prefError;
             }
-
+            
             setUser({
               id: session.user.id,
               email: session.user.email!,
