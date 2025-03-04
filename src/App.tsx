@@ -19,6 +19,7 @@ import PersonalityResults from './components/activities/personality/PersonalityR
 import PrivateRoute from './components/auth/PrivateRoute';
 import { PersonalityProvider } from './components/activities/personality/PersonalityContext';
 import Onboarding from './components/onboarding/Onboarding';
+import Admin from './components/admin/Admin';
 
 const App = () => {
   return (
@@ -52,7 +53,9 @@ const App = () => {
                 <Route path="/goals" element={<Goals />} />
                 <Route path="/insights" element={<Insights />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="/activities" element={<Activities />} />
+
                 <Route path="/activities/journal" element={<Journal />} />
                 <Route path="/activities/personality" element={
                   <PersonalityProvider>
