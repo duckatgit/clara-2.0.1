@@ -1,14 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const stripeKey = import.meta.env.VITE_STRIPE_SECRET_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
 console.log('Initializing Supabase client with URL:', supabaseUrl);
-
+const stripe = new Stripe(stripeKey, {
+  apiVersion: '2025-02-24.acacia', // Stripe API version
+  typescript: true,         // Enable TypeScript definitions
+});   
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
@@ -27,6 +32,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 export const isSupabaseError = (error: any): boolean => {
   return error?.name === 'AuthApiError' || error?.code?.startsWith('PGRST');
 };
+
 
 export const getErrorMessage = (error: any): string => {
   if (isSupabaseError(error)) {
@@ -315,5 +321,105 @@ export const api = {
 
     if (error) throw error;
     return true;
-  }
+  },
+
+  createCheckoutSession: async (planType: string, userId: string) => {
+    // Step 1: Create a new Stripe checkout session
+    console.log('Creating Stripe checkout session for user:', userId, 'with plan:', planType);
+  
+    // Define the price IDs for the recurring plans
+    let priceId = '';
+  
+    switch (planType) {
+      case 'premium':
+        priceId = 'price_1QzCBGL0alonkQqHhpU0w1Tb'; // Replace with the actual price ID for premium
+        break;
+      case 'pro':
+        priceId = 'price_1QzCCFL0alonkQqHseHz5e2h'; // Replace with the actual price ID for pro
+        break;
+      case 'free':
+        priceId = 'price_free_plan'; // If this is a free plan, you might need to create a free price in Stripe
+        break;
+      default:
+        throw new Error('Invalid plan type');
+    }
+  
+    try {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price: priceId, // Use the price ID from Stripe for the subscription plan
+            quantity: 1,
+          },
+        ],
+        mode: 'subscription', // This is important, as it indicates recurring payments
+        success_url: `${window.location.origin}/chat`,
+        cancel_url: `${window.location.origin}/paymentFailed`,
+        metadata: {
+          userId,
+          planType,
+        },
+      });
+      return session.id;
+    } catch (error) {
+      console.error('Error creating Stripe checkout session:', error);
+      throw new Error('Error creating checkout session');
+    }
+  },
+  
+  getUserSubscription: async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('No user logged in');
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  hasValidSubscription: async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('No user logged in');
+
+    const subscription = await api.getUserSubscription();
+
+    if (subscription && subscription.status === 'active') {
+      return true;
+    }
+
+    return false;
+  },
+  storePaymentData: async (paymentData: {
+    userId: string;
+    stripePaymentIntentId: string;
+    amount: number;
+    status: string;
+  }) => {
+    try {
+      console.log('Storing payment data:', paymentData);
+      const { error } = await supabase
+        .from('payments')
+        .insert({
+          user_id: paymentData.userId,
+          stripe_payment_intent_id: paymentData.stripePaymentIntentId,
+          amount: paymentData.amount,
+          status: paymentData.status,
+          payment_date: new Date().toISOString(),
+        });
+
+      if (error) {
+        throw new Error('Error inserting payment record into database');
+      }
+
+      console.log('Payment record inserted successfully for user:', paymentData.userId);
+    } catch (error) {
+      console.error('Error storing payment data:', error);
+      throw error;
+    }
+  },
 };

@@ -21,6 +21,9 @@
       - `id` (uuid, primary key)
       - `user_id` (uuid, references auth.users)
       - `is_premium` (boolean)
+      - `plan_type` (text)
+      - `expires_at` (timestamp)
+      - `payment_method` (text)
       - `created_at` (timestamp)
       - `updated_at` (timestamp)
 
@@ -48,17 +51,20 @@ CREATE TABLE IF NOT EXISTS personality_results (
   created_at timestamptz DEFAULT now() NOT NULL
 );
 
--- Create subscriptions table
+-- Create subscriptions table with enhancements
 CREATE TABLE IF NOT EXISTS subscriptions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   is_premium boolean DEFAULT false NOT NULL,
+  plan_type text DEFAULT 'free' NOT NULL, -- Type of plan (e.g., 'free', 'premium', 'pro')
+  expires_at timestamptz, -- Expiration date for the subscription
+  payment_method text, -- Payment method used (e.g., 'stripe', 'paypal')
   created_at timestamptz DEFAULT now() NOT NULL,
   updated_at timestamptz DEFAULT now() NOT NULL,
-  UNIQUE(user_id)
+  UNIQUE(user_id) -- Ensure only one active subscription per user
 );
 
--- Enable RLS
+-- Enable Row-Level Security (RLS) on all tables
 ALTER TABLE journal_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE personality_results ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
