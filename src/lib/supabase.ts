@@ -1,10 +1,11 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const stripeKey = import.meta.env.VITE_STRIPE_SECRET_KEY;
-
+const webhookSecret = import.meta.env.VITE_STRIPE_WEBHOOK_SECRET;
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
@@ -324,21 +325,16 @@ export const api = {
   },
 
   createCheckoutSession: async (planType: string, userId: string) => {
-    // Step 1: Create a new Stripe checkout session
-    console.log('Creating Stripe checkout session for user:', userId, 'with plan:', planType);
-  
-    // Define the price IDs for the recurring plans
     let priceId = '';
-  
     switch (planType) {
       case 'premium':
-        priceId = 'price_1QzCBGL0alonkQqHhpU0w1Tb'; // Replace with the actual price ID for premium
+        priceId = 'price_1QzCBGL0alonkQqHhpU0w1Tb'; 
         break;
       case 'pro':
-        priceId = 'price_1QzCCFL0alonkQqHseHz5e2h'; // Replace with the actual price ID for pro
+        priceId = 'price_1QzCCFL0alonkQqHseHz5e2h';
         break;
       case 'free':
-        priceId = 'price_free_plan'; // If this is a free plan, you might need to create a free price in Stripe
+        priceId = 'price_free_plan'; 
         break;
       default:
         throw new Error('Invalid plan type');
@@ -349,12 +345,12 @@ export const api = {
         payment_method_types: ['card'],
         line_items: [
           {
-            price: priceId, // Use the price ID from Stripe for the subscription plan
+            price: priceId,
             quantity: 1,
           },
         ],
-        mode: 'subscription', // This is important, as it indicates recurring payments
-        success_url: `${window.location.origin}/chat`,
+        mode: 'subscription',
+        success_url: `${window.location.origin}/paymentSuccess`,
         cancel_url: `${window.location.origin}/paymentFailed`,
         metadata: {
           userId,
@@ -382,44 +378,32 @@ export const api = {
     return data;
   },
 
-  hasValidSubscription: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No user logged in');
+  // handleWebhook: async (req: NextApiRequest, res: NextApiResponse) => {
+  //   const sig = req.headers['stripe-signature'] as string;
+  //   console.log('Webhook called');
+  //   let event;
 
-    const subscription = await api.getUserSubscription();
+  //   try {
+  //     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+  //   } catch (err) {
+  //     console.error('Webhook signature verification failed:', err);
+  //   }
+  //   console.log('Success:', event?.id);
+  //   switch (event?.type) {
+  //     case 'payment_intent.succeeded':
+  //       const paymentIntent = event.data.object; 
+  //       console.log(`PaymentIntent was successful!`, paymentIntent);
+  //       break;
+  //     case 'checkout.session.completed':
+  //       const checkoutSession = event.data.object;
+  //       console.log(`Checkout session completed!`, checkoutSession);
+  //       break;
+  //     default:
+  //       console.log(`Unhandled event type: ${event?.type}`);
+  //   }
 
-    if (subscription && subscription.status === 'active') {
-      return true;
-    }
+  //   // Return a response to Stripe
+  //   res.status(200).json({ received: true });
+  // },
 
-    return false;
-  },
-  storePaymentData: async (paymentData: {
-    userId: string;
-    stripePaymentIntentId: string;
-    amount: number;
-    status: string;
-  }) => {
-    try {
-      console.log('Storing payment data:', paymentData);
-      const { error } = await supabase
-        .from('payments')
-        .insert({
-          user_id: paymentData.userId,
-          stripe_payment_intent_id: paymentData.stripePaymentIntentId,
-          amount: paymentData.amount,
-          status: paymentData.status,
-          payment_date: new Date().toISOString(),
-        });
-
-      if (error) {
-        throw new Error('Error inserting payment record into database');
-      }
-
-      console.log('Payment record inserted successfully for user:', paymentData.userId);
-    } catch (error) {
-      console.error('Error storing payment data:', error);
-      throw error;
-    }
-  },
 };

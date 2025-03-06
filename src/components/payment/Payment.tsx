@@ -47,31 +47,12 @@ export const Payment = () => {
       if (!userId) {
         throw new Error("User ID is undefined");
       }
-      console.log("User ID", userId);
-
       const sessionId = await api.createCheckoutSession(priceId, userId);
-
       const stripe = await stripePromise;
-      console.log("Stripe", sessionId);
       if (stripe) {
-        console.log("Redirecting to Stripe checkout");
-        const { error } = await stripe.redirectToCheckout({
+        await stripe.redirectToCheckout({
           sessionId,
         });
-        console.log("Stripe checkout error", error);
-        if (error) {  
-          console.error("Stripe checkout error", error);
-        } else {
-          console.log("Payment successful", userId);
-          // Store payment data in Supabase after successful payment
-          await api.storePaymentData({
-            userId,
-            stripePaymentIntentId: sessionId,
-            amount: priceId === "premium" ? 2900 : priceId === "pro" ? 4900 : 0,
-            status: "completed",
-          });
-          
-        }
       } else {
         console.error("Stripe is not loaded properly");
       }

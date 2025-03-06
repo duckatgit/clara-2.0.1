@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PaymentFail = () => {
+const PaymentFailed = () => {
     return (
         <div>
             <h1>Payment Failed</h1>
@@ -9,4 +9,4 @@ const PaymentFail = () => {
     );
 };
 
-export default PaymentFail;
+export default PaymentFailed;
