@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, "whsec_LDB28cAAfY4Hr3bbNUl7Ala0U0dqRfL0");
+    event = stripe.webhooks.constructEvent(req.body, sig, "whsec_SSbgwnF0mFmnmJ51tua08Phmbv7BYUvL");
   } catch (err) {
     console.error('Webhook signature verification failed:', err);
     return res.status(400).send(`Webhook Error: ${err.message}`);

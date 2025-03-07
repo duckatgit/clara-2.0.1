@@ -24,14 +24,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
-
   useEffect(() => {
+
     let mounted = true;
 
     const getSession = async () => {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
+        console.log('Session:', session);
         if (sessionError) {
           console.error('Session error:', sessionError);
           throw sessionError;
@@ -65,7 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } else {
           if (mounted) {
-            setUser(null);
             if (!window.location.pathname.match(/^\/(login|signup)$/)) {
               navigate('/login');
             }
@@ -90,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!mounted) return;
 
       if (event === 'SIGNED_IN' && session?.user) {
+        console.log('User signed in:', session.user.id);
         try {
           const { data: preferences, error: prefError } = await supabase
             .from('user_preferences')
@@ -207,7 +207,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email,
         password
       });
-
       if (existingUser?.user) {
         toast.error('An account with this email already exists. Please sign in instead.');
         navigate('/login');
@@ -260,12 +259,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
-
       if (error) {
         if (error.message === 'Invalid login credentials') {
           toast.error('Invalid email or password');
@@ -283,7 +280,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .select('*')
         .eq('user_id', data.user.id)
         .maybeSingle();
-      
       if (prefError && prefError.code !== 'PGRST116') {
         throw prefError;
       }

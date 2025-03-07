@@ -26,6 +26,9 @@ const Login = () => {
     }
   };
 
+  React.useEffect(() => {   
+    localStorage.clear();
+  }, []); 
   return (
     <div className="space-y-6">
       <div className="text-center">
