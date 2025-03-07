@@ -1,16 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
+// const supabaseUrl = process.env.VITE_SUPABASE_URL;
+// const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 
-
-import { createClient } from '@supabase/supabase-js';
-const webhookSecret = 'whsec_y711umym6BR3YCRiP8RWPRqxZPoXfuOv';
-
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkdGt2dWtsc3hyam1neXRpenBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA5ODIwMjUsImV4cCI6MjA1NjU1ODAyNX0.rlgZzBAkK7ZqpztN5lOb2oQhH272fYA2PJ0oQ_t-N9s';
-const supabaseUrl = 'https://fdtkvuklsxrjmgytizpj.supabase.co';
+// import { createClient } from '@supabase/supabase-js';
+const webhookSecret = process.env.VITE_STRIPE_WEBHOOK_SECRET;
 const stripe = new Stripe('sk_test_51QzBokL0alonkQqHHmnBM8qADkvSE5JKPCYKs020hSfU3P5zbx9nIMxfYQhEapzdRhRsHCN0ZwdkURqifsO53xCc00UPldkfrE', {
   apiVersion: '2025-02-24.acacia', 
 });
-const supabase = createClient(supabaseUrl, supabaseAnonKey);  
+// const supabase = createClient(supabaseUrl, supabaseAnonKey);  
 export const cofig = {
   api: {bodyParser: false},
 }
@@ -21,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    event = stripe.webhooks.constructEvent(req.body, sig, "whsec_LDB28cAAfY4Hr3bbNUl7Ala0U0dqRfL0");
   } catch (err) {
     console.error('Webhook signature verification failed:', err);
     return res.status(400).send(`Webhook Error: ${err.message}`);
