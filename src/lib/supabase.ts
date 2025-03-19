@@ -20,7 +20,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Log Supabase client initialization
-supabase.auth.onAuthStateChange((event, session) => { 
+supabase.auth.onAuthStateChange((event, session) => {
   console.log("Supabase auth state changed:", event, session?.user?.id);
 });
 
@@ -232,6 +232,43 @@ export const api = {
       };
     } catch (error) {
       console.error("Error getting message limit info:", error);
+      throw error;
+    }
+  },
+
+  increaseMessageLimitForAllUsers: async (email: string, newLimit: number) => {
+    console.log("-->", email, newLimit);
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) throw new Error("No user logged in");
+
+    // Check if the logged-in user is 'bnitesh400@gmail.com'
+    if (session.user.email !== email) {
+      throw new Error("You do not have permission to perform this action");
+    }
+
+    try {
+      // Update message limit for all users in the subscriptions table
+      const { data: existingData, error: checkError } = await supabase
+        .from("subscriptions")
+        .select("*")
+        console.log("=>",existingData); 
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .update({ message_limit: newLimit })
+        .eq("message_limit", 20);
+
+      console.log(data);
+
+      if (error) throw error;
+
+      return {
+        message: "Message limit updated successfully for all users",
+        updatedCount: data,
+      };
+    } catch (error) {
+      console.error("Error increasing message limit for all users:", error);
       throw error;
     }
   },

@@ -12,6 +12,7 @@ import {
   History,
   ChevronRight,
   ChevronLeft,
+  UserRoundCog,
   Trash2
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
@@ -19,13 +20,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 
-const navItems = [
-  { path: '/', icon: MessageSquare, label: 'Chat' },
-  { path: '/goals', icon: Target, label: 'Goals' },
-  { path: '/insights', icon: LineChart, label: 'Insights' },
-  { path: '/activities', icon: Dumbbell, label: 'Activities' },
-  { path: '/settings', icon: Settings, label: 'Settings' },
-];
+
 
 interface Conversation {
   id: string;
@@ -41,7 +36,15 @@ const Layout = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
-
+  const {user} =useAuth()
+  const navItems = [
+    { path: '/', icon: MessageSquare, label: 'Chat' },
+    { path: '/goals', icon: Target, label: 'Goals' },
+    { path: '/insights', icon: LineChart, label: 'Insights' },
+    { path: '/activities', icon: Dumbbell, label: 'Activities' },
+    { path: '/settings', icon: Settings, label: 'Settings' },
+    ...(user?.email === 'bnitesh400@gmail.com' ? [{ path: '/admin', icon: UserRoundCog, label: 'Admin' }] : []),
+  ];
   const loadConversations = async () => {
     try {
       setLoading(true);
