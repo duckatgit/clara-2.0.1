@@ -21,6 +21,7 @@ const Signup = () => {
       provider: "google",
     });
   };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading || !email || !password || !confirmPassword) return;

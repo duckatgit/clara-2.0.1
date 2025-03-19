@@ -11,6 +11,7 @@ interface PrivateRouteProps {
 
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const { user, loading } = useAuth();
+  console.log('user', user)
   const location = useLocation();
 
   // Add a timeout to prevent infinite loading
