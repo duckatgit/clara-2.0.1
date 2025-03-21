@@ -121,8 +121,8 @@ const Chat = () => {
                 "bg-white/5 border border-white/10",
                 "text-white placeholder-gray-400",
                 "focus:outline-none focus:ring-2 focus:ring-violet-500/50",
-                (loading || (messageLimitInfo?.used ?? 0) >= (messageLimitInfo?.limit ?? 0)) && 
-                  "opacity-50 cursor-not-allowed"
+                (loading || (messageLimitInfo?.used ?? 0) >= (messageLimitInfo?.limit ?? 0)) &&
+                "opacity-50 cursor-not-allowed"
               )}
               disabled={loading || (messageLimitInfo?.used ?? 0) >= (messageLimitInfo?.limit ?? 0)}
             />

@@ -29,13 +29,13 @@ const Settings = () => {
     }
   };
 
-  const handleUpdatePreferences = async (newPreferences) => {
+  const handleUpdatePreferences = async (newPreferences: any) => {
     try {
       setUpdating(true);
-      
+
       // Get current profile first
       const profile = await api.getUserProfile();
-      
+
       // Prepare update data
       const updateData = {
         // Keep existing values
@@ -47,10 +47,9 @@ const Settings = () => {
         // Add the new reminder preferences
         reminder_preferences: newPreferences
       };
-
       // Update profile
       await api.updateUserProfile(updateData);
-      
+
       // Update local state
       setPreferences(newPreferences);
       toast.success('Settings updated successfully');
@@ -122,7 +121,7 @@ const Settings = () => {
                 </div>
               </div>
             )}
-            
+
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
               <ReminderSettings
                 preferences={preferences}

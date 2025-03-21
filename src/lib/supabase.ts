@@ -19,9 +19,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
+// export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 // Log Supabase client initialization
 supabase.auth.onAuthStateChange((event, session) => {
-  console.log("Supabase auth state changed:", event, session?.user?.id);
+  console.log("Supabase auth state changed:", event, session, session?.user?.id);
 });
 
 export const isSupabaseError = (error: any): boolean => {
@@ -83,6 +85,46 @@ export const api = {
     }
   },
 
+  // updateUserProfile: async (data: any) => {
+  //   try {
+  //     console.log("Getting user session for profile update...");
+  //     const {
+  //       data: { session },
+  //       error: sessionError,
+  //     } = await supabase.auth.getSession();
+
+  //     console.log(1, session)
+
+  //     if (sessionError) {
+  //       console.error("Session error:", sessionError);
+  //       throw sessionError;
+  //     }
+
+  //     if (!session) {
+  //       console.error("No session found");
+  //       throw new Error("No user logged in");
+  //     }
+
+  //     console.log("Updating user preferences:", data);
+  //     const { error } = await supabase.from("user_preferences").upsert({
+  //       user_id: session.user.id,
+  //       ...data,
+  //       updated_at: new Date().toISOString(),
+  //     });
+
+  //     if (error) {
+  //       console.error("Profile update error:", error);
+  //       throw error;
+  //     }
+
+  //     console.log("Profile updated successfully");
+  //     return true;
+  //   } catch (error) {
+  //     console.error("updateUserProfile error:", error);
+  //     throw error;
+  //   }
+  // },
+
   updateUserProfile: async (data: any) => {
     try {
       console.log("Getting user session for profile update...");
@@ -90,6 +132,8 @@ export const api = {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
+
+      console.log(1, session)
 
       if (sessionError) {
         console.error("Session error:", sessionError);
@@ -101,16 +145,38 @@ export const api = {
         throw new Error("No user logged in");
       }
 
-      console.log("Updating user preferences:", data);
-      const { error } = await supabase.from("user_preferences").upsert({
-        user_id: session.user.id,
-        ...data,
-        updated_at: new Date().toISOString(),
-      });
+      const { data: existingPreference, error: fetchError } = await supabase
+        .from("user_preferences")
+        .select("user_id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (fetchError) {
+        throw new Error(`Error fetching user preferences: ${fetchError.message}`);
+      }
+
+      let error; // Define the error variable
+
+      if (existingPreference) {
+        // Row exists, update it
+        ({ error } = await supabase
+          .from("user_preferences")
+          .update({
+            ...data,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", session.user.id));
+      } else {
+        // Row does not exist, insert a new one
+        ({ error } = await supabase.from("user_preferences").insert({
+          user_id: session.user.id,
+          ...data,
+          updated_at: new Date().toISOString(),
+        }));
+      }
 
       if (error) {
-        console.error("Profile update error:", error);
-        throw error;
+        throw new Error(`Profile update error: ${error.message}`);
       }
 
       console.log("Profile updated successfully");
@@ -253,7 +319,7 @@ export const api = {
       const { data: existingData, error: checkError } = await supabase
         .from("subscriptions")
         .select("*")
-        console.log("=>",existingData); 
+      console.log("=>", existingData);
       const { data, error } = await supabase
         .from("subscriptions")
         .update({ message_limit: newLimit })

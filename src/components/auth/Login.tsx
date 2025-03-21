@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { LogIn, Loader2 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "../../utils/cn";
@@ -33,6 +33,9 @@ const Login = () => {
       setLoading(false);
     }
   };
+  // useEffect(() => {
+  //   localStorage.clear();
+  // }, [])
 
   return (
     <div className="space-y-6">

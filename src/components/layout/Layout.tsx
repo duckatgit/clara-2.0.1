@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  MessageSquare, 
-  Target, 
-  LineChart, 
-  Settings, 
+import {
+  MessageSquare,
+  Target,
+  LineChart,
+  Settings,
   Brain,
   Dumbbell,
   LogOut,
@@ -36,7 +36,7 @@ const Layout = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
-  const {user} =useAuth()
+  const { user } = useAuth()
   const navItems = [
     { path: '/', icon: MessageSquare, label: 'Chat' },
     { path: '/goals', icon: Target, label: 'Goals' },
@@ -49,8 +49,7 @@ const Layout = () => {
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-      
+      if (!session) return;
       const { data, error } = await supabase
         .from('conversations')
         .select(`
@@ -62,7 +61,7 @@ const Layout = () => {
             created_at
           )
         `)
-         .eq('user_id', session.user.id) // Add this line to ensure only user's conversations
+        .eq('user_id', session.user.id) // Add this line to ensure only user's conversations
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -70,7 +69,7 @@ const Layout = () => {
       const processedConversations = data?.map(conv => {
         const messages = conv.messages || [];
         const firstUserMessage = messages.find(m => m.role === 'user')?.content || '';
-        const preview = firstUserMessage.length > 50 
+        const preview = firstUserMessage.length > 50
           ? firstUserMessage.substring(0, 50) + '...'
           : firstUserMessage;
 

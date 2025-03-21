@@ -44,7 +44,7 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
               <Brain className="w-12 h-12 text-violet-400" />
             </div>
           </div>
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

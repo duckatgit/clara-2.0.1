@@ -62,12 +62,12 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
         .select('*')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
-  
+
       if (messageError) {
         console.error('Error loading messages:', messageError);
         throw new Error('Failed to load messages');
       }
-  
+
       if (messageData) {
         setMessages(
           messageData.map(msg => ({
@@ -145,7 +145,7 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
       if (!canSendMessage) {
         const info = await api.getMessageLimitInfo();
         setMessageLimitInfo(info);
-        
+
         if (info.isPremium) {
           toast.error(`You've reached your daily limit of ${info.limit} messages`);
         } else {
@@ -290,7 +290,7 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
       const completedGoals = goals.filter(g => g.completed);
 
       let context = '\nUser Goals Context:';
-      
+
       if (activeGoals.length) {
         context += '\nActive Goals:';
         activeGoals.forEach(goal => {
@@ -338,9 +338,9 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   return (
-    <ChatContext.Provider 
-      value={{ 
-        messages, 
+    <ChatContext.Provider
+      value={{
+        messages,
         loading,
         sendMessage,
         clearChat,

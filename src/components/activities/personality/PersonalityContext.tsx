@@ -136,19 +136,14 @@ export const PersonalityProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       // Generate insights based on overall pattern
       const insights = [
-        `Your ${traitScores.openness > 60 ? 'high' : 'moderate'} openness suggests you ${
-          traitScores.openness > 60 ? 'thrive on' : 'could benefit from more'
+        `Your ${traitScores.openness > 60 ? 'high' : 'moderate'} openness suggests you ${traitScores.openness > 60 ? 'thrive on' : 'could benefit from more'
         } exploration and creative thinking.`,
-        `Your approach to challenges is ${
-          traitScores.conscientiousness > 60 ? 'methodical and organized' : 'flexible and adaptable'
-        }, which serves you well in ${
-          traitScores.conscientiousness > 60 ? 'structured environments' : 'dynamic situations'
+        `Your approach to challenges is ${traitScores.conscientiousness > 60 ? 'methodical and organized' : 'flexible and adaptable'
+        }, which serves you well in ${traitScores.conscientiousness > 60 ? 'structured environments' : 'dynamic situations'
         }.`,
-        `In social situations, you tend to ${
-          traitScores.extraversion > 60 ? 'energize others and lead discussions' : 'observe and provide thoughtful input'
+        `In social situations, you tend to ${traitScores.extraversion > 60 ? 'energize others and lead discussions' : 'observe and provide thoughtful input'
         }.`,
-        `Your ${traitScores.agreeableness > 60 ? 'strong' : 'developing'} interpersonal skills help you ${
-          traitScores.agreeableness > 60 ? 'build deep connections' : 'maintain balanced relationships'
+        `Your ${traitScores.agreeableness > 60 ? 'strong' : 'developing'} interpersonal skills help you ${traitScores.agreeableness > 60 ? 'build deep connections' : 'maintain balanced relationships'
         }.`
       ];
 
@@ -172,7 +167,7 @@ export const PersonalityProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       setResults(newResults);
       setHasCompletedTest(true);
-      
+
       // Update history for premium users
       if (isPremium) {
         setHistory(prev => [newResults, ...prev]);
