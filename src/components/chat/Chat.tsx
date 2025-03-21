@@ -33,7 +33,7 @@ const Chat = () => {
       duration: 5000
     });
   };
-
+  console.log('chat=>', messageLimitInfo)
   return (
     <div className="flex flex-col h-screen max-h-screen">
       {/* Messages */}
@@ -121,14 +121,17 @@ const Chat = () => {
                 "bg-white/5 border border-white/10",
                 "text-white placeholder-gray-400",
                 "focus:outline-none focus:ring-2 focus:ring-violet-500/50",
-                (loading || (messageLimitInfo?.used ?? 0) >= (messageLimitInfo?.limit ?? 0)) &&
+                (loading) &&
                 "opacity-50 cursor-not-allowed"
+                // (loading || (messageLimitInfo?.used ?? 0) >= (messageLimitInfo?.limit ?? 0)) &&
+                // "opacity-50 cursor-not-allowed"
               )}
-              disabled={loading || (messageLimitInfo?.used ?? 0) >= (messageLimitInfo?.limit ?? 0)}
+              // disabled={loading || (messageLimitInfo?.used ?? 0) >= (messageLimitInfo?.limit ?? 0)}
+              disabled={loading}
             />
             <button
               type="submit"
-              disabled={loading || !input.trim() || (messageLimitInfo?.used ?? 0) >= (messageLimitInfo?.limit ?? 0)}
+              disabled={loading || !input.trim()}
               className={cn(
                 "absolute right-2 top-1/2 -translate-y-1/2",
                 "p-2 rounded-lg",

@@ -49,6 +49,7 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
   const loadMessageLimitInfo = async () => {
     try {
       const info = await api.getMessageLimitInfo();
+      console.log('info', info)
       setMessageLimitInfo(info);
     } catch (error) {
       console.error('Error loading message limit info:', error);
@@ -201,6 +202,7 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
       const goalsContext = await getGoalsContext();
 
       let fullResponse = '';
+      console.log(goalsContext)
       await streamCompletion(
         [
           {

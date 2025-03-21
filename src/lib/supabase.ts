@@ -283,6 +283,8 @@ export const api = {
         .select("daily_message_count, message_limit, is_premium")
         .eq("user_id", session.user.id)
         .single();
+
+      console.log(error)
       if (error) throw error;
 
       // Check if no subscription data was found
