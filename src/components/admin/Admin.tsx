@@ -18,7 +18,6 @@ const Admin = () => {
     try {
       if (user?.email) {
         const info = await api.increaseMessageLimitForAllUsers(user.email, newLimit);
-        console.log("info=>",info);
       } 
 
     } catch (error) {
