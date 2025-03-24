@@ -239,7 +239,7 @@ const Chat = () => {
 
       {/* Message limit info */}
       {messageLimitInfo && !messageLimitInfo.isPremium && (
-        <div className="border-t border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2">
+        <div className="border-t border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 mb-20">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-2 text-sm text-gray-400">
               <span>
