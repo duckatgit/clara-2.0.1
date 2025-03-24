@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { ElevenLabsClient } from "elevenlabs";
 import { api } from '@/lib/supabase';
-import { Readable } from 'stream';
+// import { Readable } from 'stream';
 
 const Chat = () => {
   const client = new ElevenLabsClient({ apiKey: import.meta.env.VITE_ELEVENLABS_API_KEY });
@@ -142,7 +142,7 @@ const Chat = () => {
 
           // Step 2: Send transcription to GPT
           const gptResponse = await sendMessageNoStreaming(transcribedText);
-          const gptText = gptResponse;
+          const gptText = typeof gptResponse === "string" ? gptResponse : "";
 
           // Step 3: Convert GPT response to speech with ElevenLabs
           const elevenLabsResponse = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {

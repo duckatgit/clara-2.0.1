@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Book, Brain, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cn } from '../../utils/cn';
+import { cn } from '@/utils/cn';
 
 const activities = [
   {
@@ -11,6 +11,7 @@ const activities = [
     icon: Book,
     link: '/activities/journal',
     color: 'from-emerald-500 to-teal-500',
+    comingSoon: false
   },
   {
     id: 'personality',
@@ -19,6 +20,7 @@ const activities = [
     icon: Brain,
     link: '/activities/personality',
     color: 'from-violet-500 to-purple-500',
+    comingSoon: false
   },
 ];
 

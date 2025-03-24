@@ -17,12 +17,12 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import Chat3dIcon from "../../../public/assets/chat-3d.png"
-import Target3dIcon from "../../../public/assets/Target-3d.png"
-import LineChart3dIcon from "../../../public/assets/LineChart-3d.png"
-import Dumbbell3dIcon from "../../../public/assets/Dumbbell-3d.png"
-import Settings3dIcon from "../../../public/assets/Settings-3d.png"
-import Admin3dIcon from "../../../public/assets/Admin-3e.png"
+import Chat3dIcon from "../../../src/assets/chat-3d.png"
+import Target3dIcon from "../../../src/assets/Target-3d.png"
+import LineChart3dIcon from "../../../src/assets/LineChart-3d.png"
+import Dumbbell3dIcon from "../../../src/assets/Dumbbell-3d.png"
+import Settings3dIcon from "../../../src/assets/Settings-3d.png"
+import Admin3dIcon from "../../../src/assets/Admin-3e.png"
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -123,7 +123,7 @@ const Layout = () => {
     <div className="h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex flex-col w-screen">
       {/* Sidebar */}
       <div className='w-full flex justify-center z-50 h-[10%]'>
-        
+
         {/* Desktop Version */}
         <div className="fixed bg-white/5  border-r border-white/10 w-1/2  rounded-lg h-[10%] xs:hidden lg:block">
           <div className="flex items-center justify-center h-full w-full ">

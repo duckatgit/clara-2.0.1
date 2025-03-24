@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book, Calendar, Tag, Save, ArrowLeft, Loader2, Search, Filter, SortDesc } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cn } from '../../utils/cn';
-import { api } from '../../lib/supabase';
+import { cn } from '@/utils/cn';
+import { api } from '@/lib/supabase';
 import toast from 'react-hot-toast';
 
 interface JournalEntry {
@@ -83,7 +83,7 @@ const Journal = () => {
   const filteredEntries = entries.filter(entry => {
     const matchesSearch = entry.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
       entry.topics.some(topic => topic.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+
     const matchesTags = selectedTags.length === 0 ||
       selectedTags.every(tag => entry.topics.includes(tag));
 
@@ -155,8 +155,8 @@ const Journal = () => {
                   {allTags.map(tag => (
                     <button
                       key={tag}
-                      onClick={() => setSelectedTags(prev => 
-                        prev.includes(tag) 
+                      onClick={() => setSelectedTags(prev =>
+                        prev.includes(tag)
                           ? prev.filter(t => t !== tag)
                           : [...prev, tag]
                       )}

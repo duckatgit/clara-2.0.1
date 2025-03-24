@@ -21,7 +21,7 @@ interface PersonalityContextType {
   answers: Record<string, number>;
   setAnswers: React.Dispatch<React.SetStateAction<Record<string, number>>>;
   results: PersonalityResults | null;
-  calculateResults: () => Promise<void>;
+  calculateResults: () => Promise<PersonalityResults>;
   isPremium: boolean;
   isLoading: boolean;
   history: PersonalityResults[];

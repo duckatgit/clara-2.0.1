@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-react-jsx": "^7.23.4",
-    "@types/node": "^20.17.19",
+    "@types/node": "^20.17.25",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

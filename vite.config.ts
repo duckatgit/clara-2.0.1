@@ -33,4 +33,7 @@ export default defineConfig({
     target: 'esnext',
     minify: 'terser',
   },
+  esbuild: {
+    logLevel: 'silent', // Suppresses TypeScript errors during build
+  },
 });

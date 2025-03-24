@@ -12,7 +12,7 @@ const openai = new OpenAI({
 });
 
 export const streamCompletion = async (
-  messages: { role: 'user' | 'assistant'; content: string }[],
+  messages: { role: 'user' | 'assistant' | 'system'; content: string }[],
   onChunk: (chunk: string) => void
 ) => {
   try {
@@ -59,7 +59,7 @@ This simple approach can make a big difference in how you feel throughout the da
 };
 
 export const chatCompletion = async (
-  messages: { role: 'user' | 'assistant'; content: string }[]
+  messages: { role: 'user' | 'assistant' | 'system'; content: string }[]
 ) => {
   try {
     console.log('messages', messages)
