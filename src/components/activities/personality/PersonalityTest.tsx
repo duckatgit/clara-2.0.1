@@ -170,7 +170,7 @@ const PersonalityTest = () => {
   const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showingInsight, setShowingInsight] = useState(false);
-  const { answers, setAnswers, calculateResults, hasCompletedTest, isPremium } = usePersonality();
+  const { answers, setAnswers, calculateResults, retakeTest, hasCompletedTest, isPremium } = usePersonality();
 
   const handleAnswer = (score: number) => {
     setAnswers({
@@ -201,15 +201,25 @@ const PersonalityTest = () => {
     }
   };
 
-  const startNewTest = () => {
+  const startNewTest = async () => {
     if (!isPremium) {
       toast.error('Retaking the test is a premium feature');
       return;
     }
-    setAnswers({});
-    setCurrentQuestion(0);
-    setShowingInsight(false);
+    try {
+      await retakeTest()
+      setAnswers({});
+      setCurrentQuestion(0);
+      setShowingInsight(false);
+    } catch (error) {
+      console.log('retake test error =>', error)
+    }
+
   };
+
+  const hanldeReatkeTest = async () => {
+
+  }
 
   const question = questions[currentQuestion];
 

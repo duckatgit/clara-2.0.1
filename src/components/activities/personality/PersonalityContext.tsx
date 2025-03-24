@@ -22,6 +22,7 @@ interface PersonalityContextType {
   setAnswers: React.Dispatch<React.SetStateAction<Record<string, number>>>;
   results: PersonalityResults | null;
   calculateResults: () => Promise<PersonalityResults>;
+  retakeTest: () => Promise<void>;
   isPremium: boolean;
   isLoading: boolean;
   history: PersonalityResults[];
@@ -181,6 +182,31 @@ export const PersonalityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
+  const retakeTest = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No user session found');
+
+      // Delete previous test results
+      const { error: deleteError } = await supabase
+        .from('personality_results')
+        .delete()
+        .eq('user_id', session.user.id);
+
+      if (deleteError) throw deleteError;
+
+      // Reset state
+      setResults(null);
+      setHasCompletedTest(false);
+      setAnswers({});
+      toast.success('Previous test results deleted. You can now retake the test.');
+
+    } catch (error) {
+      console.error('Error retaking test:', error.message);
+      toast.error('Failed to reset test. Please try again.');
+    }
+  };
+
   return (
     <PersonalityContext.Provider
       value={{
@@ -188,6 +214,7 @@ export const PersonalityProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setAnswers,
         results,
         calculateResults,
+        retakeTest,
         isPremium,
         isLoading,
         history,
