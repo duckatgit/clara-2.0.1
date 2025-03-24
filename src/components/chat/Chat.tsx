@@ -33,7 +33,6 @@ const Chat = () => {
       duration: 5000
     });
   };
-  console.log('chat=>', messageLimitInfo)
   return (
     <div className="flex flex-col h-screen max-h-screen">
       {/* Messages */}
