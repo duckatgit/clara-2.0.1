@@ -6,6 +6,8 @@ const stripe = new Stripe(import.meta.env.VITE_STRIPE_SECRET_KEY!);
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:3000/";
+
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Missing Supabase environment variables");
 }
@@ -140,8 +142,8 @@ export const api = {
 
       let subData = {
         user_id: session.user.id,
-          is_premium: false,
-          message_limit: 20,
+        is_premium: false,
+        message_limit: 20,
       }
 
       const { data: existingSub } = await supabase
@@ -459,9 +461,9 @@ export const api = {
         .select("stripe_customer_id")
         .eq("user_id", session.user.id)
         .maybeSingle();
-      
-        console.log('session.user.id', session.user.id)
-        console.log('pricing_id', pricing_id)
+
+      console.log('session.user.id', session.user.id)
+      console.log('pricing_id', pricing_id)
 
       if (fetchError) {
         throw new Error(`Error fetching subscription: ${fetchError.message}`);
@@ -480,19 +482,19 @@ export const api = {
         customer: stripeCustomerId,
         line_items: [
           {
-            price: pricing_id, 
+            price: pricing_id,
             quantity: 1,
           },
         ],
-        success_url: `http://localhost:3000/pricing`,
-        cancel_url: `http://localhost:3000/pricing`,
+        success_url: `${baseUrl}pricing`,
+        cancel_url: `${baseUrl}pricing`,
         subscription_data: {
           metadata: {
             customer_id: stripeCustomerId,
           },
         },
       });
-  
+
       return payment.url
     } catch (error) {
       console.error("Error creating subscription payment link:", error);
@@ -507,7 +509,7 @@ export const api = {
       } = await supabase.auth.getSession();
 
       if (!session) throw new Error("No user logged in");
-      
+
       // Step 1: Fetch the user's subscription data from Supabase
       const { data, error: fetchError } = await supabase
         .from("subscriptions")
@@ -538,7 +540,7 @@ export const api = {
       } = await supabase.auth.getSession();
 
       if (!session) throw new Error("No user logged in");
-      
+
       // Step 1: Fetch the user's subscription data from Supabase
       const { data: subscription, error: fetchError } = await supabase
         .from("subscriptions")
@@ -590,7 +592,7 @@ export const api = {
       };
     } catch (error) {
       console.error("Error updating subscription from Stripe:", error);
-      await  api.getSubscription();
+      await api.getSubscription();
     }
   }
 

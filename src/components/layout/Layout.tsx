@@ -226,13 +226,15 @@ const Layout = () => {
             initial={{ x: -320, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -320, opacity: 0 }}
-            className="fixed inset-y-0 left-0 w-80 bg-white/5 backdrop-blur-sm border-r border-white/10 z-20"
+            className="fixed inset-y-0 left-0 w-80 bg-white/5 backdrop-blur-sm border-r border-white/10 z-[99]"
           >
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between p-4 border-b border-white/10">
                 <h2 className="text-lg font-medium text-white">Chat History</h2>
                 <button
-                  onClick={() => setShowHistory(false)}
+                  onClick={() => {
+                    setShowHistory(false)
+                  }}
                   className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white"
                 >
                   <ChevronLeft className="w-5 h-5" />
