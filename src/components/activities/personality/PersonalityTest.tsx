@@ -245,13 +245,13 @@ const PersonalityTest = () => {
               <div className="p-4 inline-block rounded-xl bg-violet-500/20 mb-4">
                 <Brain className="w-12 h-12 text-violet-400" />
               </div>
-              
+
               <h2 className="text-2xl font-bold text-white">
                 You've Already Completed the Test
               </h2>
-              
+
               <p className="text-gray-300 max-w-lg mx-auto">
-                {isPremium 
+                {isPremium
                   ? "You can view your previous results or take the test again to see how your personality traits have evolved."
                   : "Upgrade to premium to track how your personality traits evolve over time by retaking the test."}
               </p>
@@ -421,13 +421,13 @@ const PersonalityTest = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handlePrevious}
-                    disabled={currentQuestion === 0}
+                    // disabled={currentQuestion === 0}
                     className={cn(
                       "px-4 py-2 rounded-lg",
                       "text-gray-400 hover:text-white",
                       "flex items-center space-x-2",
                       "transition-colors duration-200",
-                      currentQuestion === 0 && "opacity-50 cursor-not-allowed"
+                      // currentQuestion === 0 && "opacity-50 cursor-not-allowed"
                     )}
                   >
                     <ArrowLeft className="w-5 h-5" />

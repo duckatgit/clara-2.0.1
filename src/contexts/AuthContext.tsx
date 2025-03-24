@@ -124,6 +124,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           console.error("Preferences fetch error:", prefError);
           throw prefError;
         }
+
+        const email = user.email!;
+
+        const { data: existingUser } = await supabase
+          .from("subscriptions")
+          .select("stripe_customer_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        let stripeCustomerId = existingUser?.stripe_customer_id || "";
+
+        if (!existingUser) {
+          // **Create Stripe customer only if user is new**
+          const customer = await stripe.customers.create({
+            email,
+          });
+          stripeCustomerId = customer.id;
+
+          // **Initialize user data in Supabase**
+          await initializeUserData(user.id, stripeCustomerId);
+        }
+        console.log('stripeCustomerId', stripeCustomerId)
         setUser({
           id: user.id,
           email: user.email!,
@@ -222,7 +244,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq("user_id", userId)
         .maybeSingle();
 
-      
+
 
       // Only insert if no subscription exists
       if (!existingSub) {
@@ -302,10 +324,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       await initializeUserData(data.user.id, customer.id);
-
-     
-  
-  
 
       setUser({
         id: data.user.id,

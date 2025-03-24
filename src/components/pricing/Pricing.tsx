@@ -88,7 +88,6 @@ const Pricing = () => {
 
     useEffect(() => {
         getSubcription();
-        
     }, []);
 
     if (loading) {
@@ -155,9 +154,9 @@ const Pricing = () => {
                                 </ul>
                                 <div className="mt-8">
                                     <button
-                                        className={currentPlan === plan.title? `disabled w-full py-3 px-4 rounded-lg font-semibold transition-colors duration-200 bg-white  text-gray-800 border border-gray-300 cursor-not-allowed
+                                        className={currentPlan === plan.title ? `disabled w-full py-3 px-4 rounded-lg font-semibold transition-colors duration-200 bg-white  text-gray-800 border border-gray-300 cursor-not-allowed
                                         ` : `w-full py-3 px-4 rounded-lg font-semibold transition-colors duration-200 ${buttonStyles[plan?.buttonVariant]
-                                            }`}
+                                        }`}
                                         onClick={() => loadPaymentLink(plan.price_id)}
                                     >
                                         {currentPlan === plan.title ? 'Current Plan' : 'Buy Plan'}

@@ -70,6 +70,7 @@ const Journal = () => {
       setEntries([newEntry, ...entries]);
       setEntry('');
       setTags([]);
+      setNewTag('')
       toast.success('Journal entry saved successfully');
       setShowEntryList(true);
     } catch (error) {
@@ -83,7 +84,7 @@ const Journal = () => {
   const filteredEntries = entries.filter(entry => {
     const matchesSearch = entry.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
       entry.topics.some(topic => topic.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+
     const matchesTags = selectedTags.length === 0 ||
       selectedTags.every(tag => entry.topics.includes(tag));
 
@@ -155,8 +156,8 @@ const Journal = () => {
                   {allTags.map(tag => (
                     <button
                       key={tag}
-                      onClick={() => setSelectedTags(prev => 
-                        prev.includes(tag) 
+                      onClick={() => setSelectedTags(prev =>
+                        prev.includes(tag)
                           ? prev.filter(t => t !== tag)
                           : [...prev, tag]
                       )}
