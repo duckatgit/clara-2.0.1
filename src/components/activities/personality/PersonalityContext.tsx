@@ -191,14 +191,14 @@ export const PersonalityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const { error: deleteError } = await supabase
         .from('personality_results')
         .delete()
-        .eq('user_id', session.user.id);
+        .match({ user_id: session.user.id });
 
       if (deleteError) throw deleteError;
-
       // Reset state
       setResults(null);
       setHasCompletedTest(false);
       setAnswers({});
+      loadUserData()
       toast.success('Previous test results deleted. You can now retake the test.');
 
     } catch (error) {
