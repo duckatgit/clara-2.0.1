@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
-import { streamCompletion } from '../lib/openai';
+import { chatCompletion, streamCompletion } from '../lib/openai';
 import { api } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 
@@ -16,6 +16,7 @@ interface ChatContextType {
   messages: Message[];
   loading: boolean;
   sendMessage: (content: string) => Promise<void>;
+  sendMessageNoStreaming: (content: string) => Promise<void>;
   clearChat: () => void;
   switchConversation: (conversationId: string) => Promise<void>;
   messageLimitInfo: {
@@ -49,7 +50,6 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
   const loadMessageLimitInfo = async () => {
     try {
       const info = await api.getMessageLimitInfo();
-      console.log('info', info)
       setMessageLimitInfo(info);
     } catch (error) {
       console.error('Error loading message limit info:', error);
@@ -143,7 +143,9 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
 
       // Check message limit
       const canSendMessage = await api.checkMessageLimit();
-      if (!canSendMessage) {
+      const info = await api.getMessageLimitInfo();
+      
+      if (!canSendMessage && !info.isPremium) {
         const info = await api.getMessageLimitInfo();
         setMessageLimitInfo(info);
 
@@ -202,7 +204,6 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
       const goalsContext = await getGoalsContext();
 
       let fullResponse = '';
-      console.log(goalsContext)
       await streamCompletion(
         [
           {
@@ -244,6 +245,127 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
 
       // Update message limit info after successful message
       await loadMessageLimitInfo();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to send message');
+      setMessages(prev => prev.slice(0, -1));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendMessageNoStreaming = async (content: string) => {
+    if (!content.trim()) return;
+
+    try {
+      setLoading(true);
+
+      // Check message limit
+      const canSendMessage = await api.checkMessageLimit();
+      const info = await api.getMessageLimitInfo();
+      
+      if (!canSendMessage && !info.isPremium) {
+        const info = await api.getMessageLimitInfo();
+        setMessageLimitInfo(info);
+
+        if (info.isPremium) {
+          toast.error(`You've reached your daily limit of ${info.limit} messages`);
+        } else {
+          toast.error(
+            'Daily message limit reached. Upgrade to premium for more messages!',
+            {
+              duration: 5000,
+              icon: '⭐'
+            }
+          );
+        }
+        return;
+      }
+
+      if (!currentConversationId) {
+        await initializeChat();
+        if (!currentConversationId) {
+          throw new Error('Failed to initialize conversation');
+        }
+      }
+
+      const userMessage: Message = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content,
+        timestamp: new Date().toISOString(),
+      };
+
+      setMessages(prev => [...prev, userMessage]);
+
+      const { error: insertError } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: currentConversationId,
+          role: 'user',
+          content
+        });
+
+      if (insertError) {
+        console.error('Error saving user message:', insertError);
+        throw new Error('Failed to save message');
+      }
+
+      const assistantMessage: Message = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: '',
+        timestamp: new Date().toISOString(),
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+
+      const goalsContext = await getGoalsContext();
+
+      let data = await chatCompletion(
+        [
+          {
+            role: 'system',
+            content: `You are Clara, a helpful and empathetic AI assistant. You provide thoughtful, personalized responses while maintaining a friendly and supportive tone. You help users with personal growth, goal setting, and emotional support.${goalsContext}`
+          },
+          ...messages.concat(userMessage).map(m => ({
+            role: m.role,
+            content: m.content
+          }))
+        ]
+      );
+
+      let fullResponse = data;
+
+      setMessages(prev => {
+        const lastMessage = prev[prev.length - 1];
+        if (lastMessage.role === 'assistant') {
+          return [
+            ...prev.slice(0, -1),
+            { ...lastMessage, content: data }
+          ];
+        }
+        return prev;
+      });
+
+      console.log('data', data)
+
+      const { error: saveError } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: currentConversationId,
+          role: 'assistant',
+          content: fullResponse
+        });
+
+      if (saveError) {
+        console.error('Error saving assistant message:', saveError);
+        throw new Error('Failed to save assistant response');
+      }
+
+      // Update message limit info after successful message
+      await loadMessageLimitInfo();
+      return data;
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to send message');
@@ -345,6 +467,7 @@ const ChatProviderComponent: React.FC<{ children: React.ReactNode }> = ({ childr
         messages,
         loading,
         sendMessage,
+        sendMessageNoStreaming,
         clearChat,
         switchConversation,
         messageLimitInfo

@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
@@ -20,6 +19,7 @@ import PrivateRoute from './components/auth/PrivateRoute';
 import { PersonalityProvider } from './components/activities/personality/PersonalityContext';
 import Onboarding from './components/onboarding/Onboarding';
 import Admin from './components/admin/Admin';
+import Pricing from './components/pricing/Pricing';
 
 const App = () => {
   return (
@@ -50,6 +50,7 @@ const App = () => {
               }>
                 <Route path="/" element={<Navigate to="/chat" replace />} />
                 <Route path="/chat" element={<Chat />} />
+                
                 <Route path="/goals" element={<Goals />} />
                 <Route path="/insights" element={<Insights />} />
                 <Route path="/settings" element={<Settings />} />
@@ -71,6 +72,7 @@ const App = () => {
 
               {/* Catch all route - redirect to login */}
               <Route path="*" element={<Navigate to="/login" replace />} />
+              <Route path="/pricing" element={<Pricing />} />
             </Routes>
           </ChatProvider>
         </AuthProvider>

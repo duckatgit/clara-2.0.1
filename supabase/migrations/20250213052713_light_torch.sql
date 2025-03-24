@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   is_premium boolean DEFAULT false NOT NULL,
   created_at timestamptz DEFAULT now() NOT NULL,
   updated_at timestamptz DEFAULT now() NOT NULL,
+  stripe_customer_id text,
+  subscription_name text,
   UNIQUE(user_id)
 );
 

@@ -13,8 +13,16 @@ import {
   ChevronRight,
   ChevronLeft,
   UserRoundCog,
-  Trash2
+  Trash2,
+  Menu,
+  X
 } from 'lucide-react';
+import Chat3dIcon from "../../../public/assets/chat-3d.png"
+import Target3dIcon from "../../../public/assets/Target-3d.png"
+import LineChart3dIcon from "../../../public/assets/LineChart-3d.png"
+import Dumbbell3dIcon from "../../../public/assets/Dumbbell-3d.png"
+import Settings3dIcon from "../../../public/assets/Settings-3d.png"
+import Admin3dIcon from "../../../public/assets/Admin-3e.png"
 import { cn } from '../../utils/cn';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -34,16 +42,19 @@ const Layout = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const [showHistory, setShowHistory] = useState(false);
+  const [showMenu, setShowMenu] = useState(false); // State to toggle the hamburger menu
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth()
+  let width = screen.width;
+  console.log('width', width)
   const navItems = [
-    { path: '/', icon: MessageSquare, label: 'Chat' },
-    { path: '/goals', icon: Target, label: 'Goals' },
-    { path: '/insights', icon: LineChart, label: 'Insights' },
-    { path: '/activities', icon: Dumbbell, label: 'Activities' },
-    { path: '/settings', icon: Settings, label: 'Settings' },
-    ...(user?.email === 'bnitesh400@gmail.com' ? [{ path: '/admin', icon: UserRoundCog, label: 'Admin' }] : []),
+    { path: '/', icon: Chat3dIcon, label: 'Chat' },
+    { path: '/goals', icon: Target3dIcon, label: 'Goals' },
+    { path: '/insights', icon: LineChart3dIcon, label: 'Insights' },
+    { path: '/activities', icon: Dumbbell3dIcon, label: 'Activities' },
+    { path: '/settings', icon: Settings3dIcon, label: 'Settings' },
+    ...(user?.email === 'nivesh2@yopmail.com' ? [{ path: '/admin', icon: Admin3dIcon, label: 'Admin' }] : []),
   ];
   const loadConversations = async () => {
     try {
@@ -109,86 +120,111 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <div className="h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex flex-col w-screen">
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 w-20 bg-white/5 backdrop-blur-sm border-r border-white/10">
-        <div className="flex flex-col items-center h-full py-8">
-          {/* Logo */}
-          <div className="mb-8">
-            <div className="p-3 rounded-xl bg-white/5">
-              <Brain className="w-8 h-8 text-violet-400" />
+      <div className='w-full flex justify-center z-50 h-[10%]'>
+        
+        {/* Desktop Version */}
+        <div className="fixed bg-white/5  border-r border-white/10 w-1/2  rounded-lg h-[10%] xs:hidden lg:block">
+          <div className="flex items-center justify-center h-full w-full ">
+            {/* Logo */}
+            <div className="p-2">
+              <div className="p-3 rounded-xl bg-white/5">
+                <Brain className="w-8 h-8 text-violet-400" />
+              </div>
             </div>
+
+            {/* Navigation */}
+            <nav className="flex w-full justify-center items-center gap-2">
+              {navItems.map(({ path, icon: Icon, label }) => (
+                <NavLink
+                  key={path}
+                  to={path}
+                  className={({ isActive }) =>
+                    cn(
+                      "relative flex flex-col items-center py-3 px-2 rounded-xl",
+                      "text-gray-400 hover:text-white",
+                      "transition-colors duration-200",
+                      isActive && "text-white bg-white/10"
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <img src={Icon} alt="..." className="w-10 h-10" />
+                      <span className="text-xs mt-1">{label}</span>
+                      {isActive && (
+                        <motion.div
+                          layoutId="active-nav"
+                          className="absolute  h-[90%] rounded-xl bg-white/10 -z-10"
+                        />
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </nav>
+
+            {/* History Toggle */}
+            <button
+              onClick={() => {
+                setShowHistory(prev => {
+                  if (!prev) loadConversations();
+                  return !prev;
+                });
+              }}
+              className={cn(
+                "p-3 rounded-xl",
+                "text-gray-400 hover:text-white",
+                "transition-colors duration-200",
+                showHistory && "text-white bg-white/10"
+              )}
+            >
+              <History className="w-6 h-6" />
+            </button>
+
+            {/* Sign Out */}
+            <button
+              onClick={signOut}
+              className={cn(
+                "p-3 rounded-xl",
+                "text-gray-400 hover:text-white",
+                "transition-colors duration-200"
+              )}
+            >
+              <LogOut className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile version */}
+        <div className="fixed bg-white/5  border-r border-white/10 w-full  rounded-lg h-[5%] xs:block lg:hidden">
+          <div className="flex items-center justify-between">
+            <div className='flex items-center'>
+              <div className="p-3 rounded-xl bg-white/5">
+                <Brain className="w-8 h-8 text-violet-400" />
+              </div>
+              <span className="ml-2 text-white text-lg font-bold">Clara</span>
+            </div>
+
+            <button
+              onClick={() => setShowMenu((prev) => !prev)}
+              className="p-2 rounded-lg text-gray-400 hover:text-white transition-colors duration-200 lg:hidden"
+            >
+              {showMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 w-full px-2 space-y-2">
-            {navItems.map(({ path, icon: Icon, label }) => (
-              <NavLink
-                key={path}
-                to={path}
-                className={({ isActive }) =>
-                  cn(
-                    "relative flex flex-col items-center py-3 px-2 rounded-xl",
-                    "text-gray-400 hover:text-white",
-                    "transition-colors duration-200",
-                    isActive && "text-white bg-white/10"
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon className="w-6 h-6" />
-                    <span className="text-xs mt-1">{label}</span>
-                    {isActive && (
-                      <motion.div
-                        layoutId="active-nav"
-                        className="absolute inset-0 rounded-xl bg-white/10 -z-10"
-                      />
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
-
-          {/* History Toggle */}
-          <button
-            onClick={() => {
-              setShowHistory(prev => {
-                if (!prev) loadConversations();
-                return !prev;
-              });
-            }}
-            className={cn(
-              "p-3 rounded-xl",
-              "text-gray-400 hover:text-white",
-              "transition-colors duration-200",
-              showHistory && "text-white bg-white/10"
-            )}
-          >
-            <History className="w-6 h-6" />
-          </button>
-
-          {/* Sign Out */}
-          <button
-            onClick={signOut}
-            className={cn(
-              "p-3 rounded-xl",
-              "text-gray-400 hover:text-white",
-              "transition-colors duration-200"
-            )}
-          >
-            <LogOut className="w-6 h-6" />
-          </button>
         </div>
       </div>
+
 
       {/* History Sidebar */}
       <AnimatePresence>
         {showHistory && (
           <motion.div
             initial={{ x: -320, opacity: 0 }}
-            animate={{ x: 80, opacity: 1 }}
+            animate={{ x: 0, opacity: 1 }}
             exit={{ x: -320, opacity: 0 }}
             className="fixed inset-y-0 left-0 w-80 bg-white/5 backdrop-blur-sm border-r border-white/10 z-20"
           >
@@ -260,8 +296,70 @@ const Layout = () => {
         )}
       </AnimatePresence>
 
+      {/* Hamburger Menu */}
+      <AnimatePresence>
+        {showMenu && (
+          <motion.div
+            initial={{ x: '-100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '-100%', opacity: 0 }}
+            className="fixed inset-y-0 left-0 w-64 bg-white/5 backdrop-blur-2xl border-r border-white/10  flex flex-col p-4 space-y-4 z-50"
+          >
+            {/* Navigation */}
+            <nav className="flex flex-col space-y-4 ">
+              {navItems.map(({ path, icon: Icon, label }) => (
+                <NavLink
+                  key={path}
+                  to={path}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center space-x-4 p-3 rounded-lg',
+                      'text-gray-400 hover:text-white hover:bg-white/10',
+                      'transition-colors duration-200',
+                      isActive && 'text-white bg-white/10'
+                    )
+                  }
+                  onClick={() => setShowMenu(false)} // Close menu on navigation
+                >
+                  {/* <Icon className="w-6 h-6" /> */}
+                  <img src={Icon} alt="..." className='w-10 h-10' />
+                  <span>{label}</span>
+                </NavLink>
+              ))}
+            </nav>
+
+            {/* History Toggle */}
+            <button
+              onClick={() => {
+                setShowMenu(false); // Close menu when toggling history
+              }}
+              className={cn(
+                'flex items-center space-x-4 p-3 rounded-lg',
+                'text-gray-400 hover:text-white hover:bg-white/10',
+                'transition-colors duration-200'
+              )}
+            >
+              <History className="w-6 h-6" />
+              <span>History</span>
+            </button>
+
+            {/* Sign Out */}
+            <button
+              onClick={signOut}
+              className={cn(
+                'flex items-center space-x-4 p-3 rounded-lg',
+                'text-gray-400 hover:text-white hover:bg-white/10',
+                'transition-colors duration-200'
+              )}
+            >
+              <LogOut className="w-6 h-6" />
+              <span>Sign Out</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Main Content */}
-      <div className="pl-20">
+      <div className="w-full overflow-x-hidden pt-2 h-[90%] ">
         <Outlet />
       </div>
     </div>

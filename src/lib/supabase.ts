@@ -1,4 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
+import Stripe from "stripe";
+
+const stripe = new Stripe(import.meta.env.VITE_STRIPE_SECRET_KEY!);
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -85,46 +88,6 @@ export const api = {
     }
   },
 
-  // updateUserProfile: async (data: any) => {
-  //   try {
-  //     console.log("Getting user session for profile update...");
-  //     const {
-  //       data: { session },
-  //       error: sessionError,
-  //     } = await supabase.auth.getSession();
-
-  //     console.log(1, session)
-
-  //     if (sessionError) {
-  //       console.error("Session error:", sessionError);
-  //       throw sessionError;
-  //     }
-
-  //     if (!session) {
-  //       console.error("No session found");
-  //       throw new Error("No user logged in");
-  //     }
-
-  //     console.log("Updating user preferences:", data);
-  //     const { error } = await supabase.from("user_preferences").upsert({
-  //       user_id: session.user.id,
-  //       ...data,
-  //       updated_at: new Date().toISOString(),
-  //     });
-
-  //     if (error) {
-  //       console.error("Profile update error:", error);
-  //       throw error;
-  //     }
-
-  //     console.log("Profile updated successfully");
-  //     return true;
-  //   } catch (error) {
-  //     console.error("updateUserProfile error:", error);
-  //     throw error;
-  //   }
-  // },
-
   updateUserProfile: async (data: any) => {
     try {
       console.log("Getting user session for profile update...");
@@ -174,6 +137,33 @@ export const api = {
           updated_at: new Date().toISOString(),
         }));
       }
+
+      let subData = {
+        user_id: session.user.id,
+          is_premium: false,
+          message_limit: 20,
+      }
+
+      const { data: existingSub } = await supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (existingSub) {
+        // Row exists, update it
+        ({ error } = await supabase
+          .from("subscriptions")
+          .update({
+            ...subData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", session.user.id));
+      } else {
+        // Row does not exist, insert a new one
+        ({ error } = await supabase.from("subscriptions").insert(subData));
+      }
+
 
       if (error) {
         throw new Error(`Profile update error: ${error.message}`);
@@ -454,4 +444,155 @@ export const api = {
     if (error) throw error;
     return true;
   },
+
+  createSubscriptionPaymentLink: async (pricing_id: string) => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) throw new Error("No user logged in");
+
+      // Step 2: Check if the user exists in the subscriptions table
+      const { data: subscription, error: fetchError } = await supabase
+        .from("subscriptions")
+        .select("stripe_customer_id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      
+        console.log('session.user.id', session.user.id)
+        console.log('pricing_id', pricing_id)
+
+      if (fetchError) {
+        throw new Error(`Error fetching subscription: ${fetchError.message}`);
+      }
+
+      if (!subscription || !subscription.stripe_customer_id) {
+        throw new Error("Stripe customer ID not found for this user");
+      }
+
+      const stripeCustomerId = subscription.stripe_customer_id;
+
+      // Step 3: Create a subscription payment link using Stripe
+      const payment = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        payment_method_types: ["card"],
+        customer: stripeCustomerId,
+        line_items: [
+          {
+            price: pricing_id, 
+            quantity: 1,
+          },
+        ],
+        success_url: `http://localhost:3000/pricing`,
+        cancel_url: `http://localhost:3000/pricing`,
+        subscription_data: {
+          metadata: {
+            customer_id: stripeCustomerId,
+          },
+        },
+      });
+  
+      return payment.url
+    } catch (error) {
+      console.error("Error creating subscription payment link:", error);
+      throw error;
+    }
+  },
+
+  getSubscription: async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) throw new Error("No user logged in");
+      
+      // Step 1: Fetch the user's subscription data from Supabase
+      const { data, error: fetchError } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      console.log('data', data)
+
+      if (fetchError) {
+        throw new Error(`Error fetching subscription: ${fetchError.message}`);
+      }
+
+      return {
+        message: "Subscription updated successfully",
+        data: data,
+      };
+    } catch (error) {
+      console.error("Error updating subscription from Stripe:", error);
+      throw error;
+    }
+  },
+
+  updateSubscriptionFromStripe: async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) throw new Error("No user logged in");
+      
+      // Step 1: Fetch the user's subscription data from Supabase
+      const { data: subscription, error: fetchError } = await supabase
+        .from("subscriptions")
+        .select("stripe_customer_id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (fetchError) {
+        throw new Error(`Error fetching subscription: ${fetchError.message}`);
+      }
+
+      if (!subscription || !subscription.stripe_customer_id) {
+        throw new Error("Stripe customer ID not found for this user");
+      }
+
+      const stripeCustomerId = subscription.stripe_customer_id;
+
+      // Step 2: Fetch subscription data from Stripe
+      const stripeSubscriptions = await stripe.subscriptions.list({
+        customer: stripeCustomerId,
+        status: "active",
+      });
+
+      if (!stripeSubscriptions.data.length) {
+        throw new Error("No active subscriptions found for this user in Stripe");
+      }
+
+      // Assuming the first active subscription is the one we need
+      const activeSubscription = stripeSubscriptions.data[0];
+      console.log('activeSubscription', activeSubscription)
+      const subscriptionName = activeSubscription.items.data[0]?.price?.nickname || "Default Plan";
+
+      // Step 3: Update the Supabase subscriptions table
+      const { error: updateError } = await supabase
+        .from("subscriptions")
+        .update({
+          is_premium: true,
+          subscription_name: subscriptionName,
+        })
+        .eq("user_id", session.user.id);
+
+      if (updateError) {
+        throw new Error(`Error updating subscription: ${updateError.message}`);
+      }
+
+      return {
+        message: "Subscription updated successfully",
+        subscriptionName,
+      };
+    } catch (error) {
+      console.error("Error updating subscription from Stripe:", error);
+      await  api.getSubscription();
+    }
+  }
+
+
 };
