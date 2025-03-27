@@ -20,8 +20,8 @@ const AuthLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center w-screen">
       <div className="w-full flex">
-        <div className='w-1/2'>
-          <div className="min-h-screen flex items-center justify-center p-6">
+        <div className='w-1/2 hidden lg:block'>
+          <div className="min-h-screen hidden lg:flex items-center justify-center p-6">
             <div className="max-w-lg text-center text-white">
               <h1 className="text-3xl font-bold mb-2">Welcome to Clara AI</h1>
               <p className="text-lg mb-6">
@@ -54,12 +54,12 @@ const AuthLayout: React.FC = () => {
           </div>
         </div>
 
-        <div className='w-1/2 h-screen flex flex-col justify-center items-center'>
+        <div className='w-full lg:w-1/2 h-screen flex flex-col justify-center items-center'>
           <div className='flex pb-5 gap-2'>
             <BsStars className='text-2xl text-white' />
             <span className='text-white font-medium text-xl'>Clara AI</span>
           </div>
-          <div className="bg-white/5 backdrop-blur-sm w-1/2 rounded-2xl p-8 shadow-xl border border-white/10">
+          <div className="bg-white/5 backdrop-blur-sm w-full sm:w-1/2 rounded-2xl p-8 shadow-xl border border-white/10">
             <Outlet />
           </div>
         </div>

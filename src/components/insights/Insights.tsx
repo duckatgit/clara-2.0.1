@@ -426,8 +426,8 @@ const Insights = () => {
           transition={{ delay: 0.6 }}
           className="mt-8 p-6 rounded-xl bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between flex-wrap">
+            <div className="flex items-center space-x-4 mb-2 sm:mb-0">
               <div className="p-2 rounded-lg bg-violet-500/20">
                 <ChartIcon className="w-6 h-6 text-violet-400" />
               </div>

@@ -110,10 +110,10 @@ const Goals = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-wrap items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">Goals</h1>
-            <p className="text-gray-300">Track and achieve your aspirations</p>
+            <p className="text-gray-300 mb-2 sm:mb-0">Track and achieve your aspirations</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -141,7 +141,7 @@ const Goals = () => {
               className="mb-8"
             >
               <div className={cn(
-                "p-6 rounded-xl",
+                "p-5  rounded-xl",
                 "bg-white/5 backdrop-blur-sm",
                 "border border-white/10"
               )}>
@@ -253,7 +253,7 @@ const Goals = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className={cn(
-                    "p-6 rounded-xl",
+                    "p-2 md:p-6 rounded-xl",
                     "bg-white/5 backdrop-blur-sm",
                     "border border-white/10",
                     "transition-colors duration-200",

@@ -198,7 +198,7 @@ const Layout = () => {
         </div>
 
         {/* Mobile version */}
-        <div className="fixed bg-white/5  border-r border-white/10 w-full  rounded-lg h-[5%] xs:block lg:hidden">
+        <div className="fixed bg-white/5  border-r border-white/10 w-full  rounded-lg h-[10%] pt-3 lg-pt:0 xs:block lg:hidden">
           <div className="flex items-center justify-between">
             <div className='flex items-center'>
               <div className="p-3 rounded-xl bg-white/5">

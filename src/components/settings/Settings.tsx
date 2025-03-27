@@ -122,7 +122,7 @@ const Settings = () => {
               </div>
             )}
 
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6">
+            <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-2 sm:p-6">
               <ReminderSettings
                 preferences={preferences}
                 onUpdate={handleUpdatePreferences}

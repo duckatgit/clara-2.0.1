@@ -96,7 +96,7 @@ const Journal = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       <div className="relative max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 flex-wrap">
           <div className="flex items-center space-x-4">
             <Link
               to="/activities"
@@ -106,7 +106,7 @@ const Journal = () => {
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-white">Journal</h1>
-              <p className="text-gray-300">Record and reflect on your journey</p>
+              <p className="text-gray-300 mb-2 sm:mb-0">Record and reflect on your journey</p>
             </div>
           </div>
           <motion.button

@@ -32,7 +32,7 @@ export const ReminderSettings: React.FC<ReminderSettingsProps> = ({
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/20">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 w-[80%] sm:w-full">
           <div className="p-2 rounded-lg bg-purple-500/20">
             <Bell className="w-5 h-5 text-purple-400" />
           </div>
