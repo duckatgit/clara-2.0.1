@@ -140,9 +140,9 @@ const Chat = () => {
         }
       };
 
-      recorder.onerror = (event) => {
-        console.error('Recording error:', event.error);
-        toast.error(`Recording failed: ${event.error?.message || 'Unknown error'}`);
+      recorder.onerror = (event:any) => {
+        console.error('Recording error:', event?.error);
+        toast.error(`Recording failed: ${event?.error?.message || 'Unknown error'}`);
         cleanup();
       };
 
