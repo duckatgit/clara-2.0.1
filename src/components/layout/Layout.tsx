@@ -23,6 +23,12 @@ import LineChart3dIcon from "../../../src/assets/LineChart-3d.png";
 import Dumbbell3dIcon from "../../../src/assets/Dumbbell-3d.png";
 import Settings3dIcon from "../../../src/assets/Settings-3d.png";
 import Admin3dIcon from "../../../src/assets/Admin-3e.png";
+
+import historyIcon from "../../../src/assets/history.png";
+
+import logoutIcon from "../../../src/assets/logout.png";
+
+
 import { cn } from "../../utils/cn";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabase";
@@ -162,7 +168,7 @@ const Layout = () => {
                       {isActive && (
                         <motion.div
                           layoutId="active-nav"
-                          className="absolute  h-[90%] rounded-xl bg-white/10 -z-10"
+                          className="absolute  h-[90%]  rounded-xl bg-white/10 -z-10"
                         />
                       )}
                     </>
@@ -174,10 +180,10 @@ const Layout = () => {
             {/* History Toggle */}
             <div
               className={cn(
-                "flex flex-col justify-center text-center",
+                "flex flex-col justify-center text-center ml-3 mr-4",
                 "text-gray-400 hover:text-white flex justify-center",
                 "transition-colors duration-200",
-                showHistory && "text-white bg-white/10"
+                showHistory && "text-white bg-white/10 rounded-xl py-3 px-2 "
               )}
             >
               <button
@@ -188,13 +194,14 @@ const Layout = () => {
                   });
                 }}
               >
-                <History className="w-6 h-6" />
+                {/* <History className="w-6 h-6" /> */}
+                   <img src={historyIcon} alt="..." className="w-10 h-10" />
               </button>
               <span className={cn("text-xs mt-1")}>History</span>
             </div>
 
             {/* Sign Out */}
-            <button
+            {/* <button
               onClick={signOut}
               className={cn(
                 "p-3 rounded-xl",
@@ -203,7 +210,24 @@ const Layout = () => {
               )}
             >
               <LogOut className="w-6 h-6" />
-            </button>
+            </button> */}
+
+            <div
+              className={cn(
+                "flex flex-col justify-center text-center",
+                "text-gray-400 hover:text-white flex justify-center",
+                "transition-colors duration-200",
+              
+              )}
+            >
+              <button
+               onClick={signOut}
+              >
+                {/* <History className="w-6 h-6" /> */}
+                   <img src={logoutIcon} alt="..." className="w-10 h-10" />
+              </button>
+              <span className={cn("text-xs mt-1")}>Sign Out</span>
+            </div>
           </div>
         </div>
 
@@ -363,7 +387,9 @@ const Layout = () => {
                 "transition-colors duration-200"
               )}
             >
-              <History className="w-6 h-6" />
+              {/* <History className="w-6 h-6" /> */}
+              <img src={historyIcon} alt="..." className="w-10 h-10" />
+
               <span>History</span>
             </button>
 
@@ -376,7 +402,10 @@ const Layout = () => {
                 "transition-colors duration-200"
               )}
             >
-              <LogOut className="w-6 h-6" />
+              {/* <LogOut className="w-6 h-6" /> */}
+              <img src={logoutIcon} alt="..." className="w-10 h-10" />
+
+              
               <span>Sign Out</span>
             </button>
           </motion.div>
