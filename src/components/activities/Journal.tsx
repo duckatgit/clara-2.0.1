@@ -94,7 +94,7 @@ const Journal = () => {
   const allTags = Array.from(new Set(entries.flatMap(entry => entry.topics)));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <div className="min-h-screen ">
       <div className="relative max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8 flex-wrap">

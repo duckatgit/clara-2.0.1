@@ -225,7 +225,7 @@ const PersonalityTest = () => {
 
   if (hasCompletedTest) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+      <div className="min-h-screen ">
         <div className="relative max-w-4xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-4">
@@ -323,7 +323,7 @@ const PersonalityTest = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <div className="min-h-screen ">
       <div className="relative max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">

@@ -97,7 +97,7 @@ const Goals = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center space-x-2 text-white">
           <Loader2 className="w-6 h-6 animate-spin" />
           <span>Loading goals...</span>
@@ -107,7 +107,7 @@ const Goals = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <div className="min-h-screen ">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between mb-8">
@@ -253,7 +253,7 @@ const Goals = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className={cn(
-                    "p-2 md:p-6 rounded-xl",
+                    "p-1 md:p-6 rounded-xl",
                     "bg-white/5 backdrop-blur-sm",
                     "border border-white/10",
                     "transition-colors duration-200",

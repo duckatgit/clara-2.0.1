@@ -76,44 +76,93 @@ const Chat = () => {
 
   const handleStartRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log("🎙️ Audio stream:", stream);
+      // Remove HTTPS check completely
+      const audioConstraints: MediaTrackConstraints = {
+        echoCancellation: { ideal: true },
+        noiseSuppression: { ideal: true },
+        autoGainControl: { ideal: true },
+        channelCount: 1
+      };
 
-      const recorder = new MediaRecorder(stream);
-      console.log("📽️ MediaRecorder initialized:", recorder);
+      // Get media stream
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
 
-      setMediaRecorder(recorder);
+      // Browser detection
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isAndroid = /Android/.test(navigator.userAgent);
+      const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
 
-      let localChunks: any[] = []; // Use a local array to store chunks
+      // Select MIME type based on browser support
+      let mimeType = 'audio/webm; codecs=opus';
+      if (isIOS || isSafari) {
+        mimeType = 'audio/mp4'; // Safari/iOS requires this format
+      } else if (isAndroid) {
+        mimeType = 'audio/webm'; // Android Chrome prefers simple webm
+      }
 
+      // Verify MIME type support
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = ''; // Let browser choose default
+      }
+
+      // Create media recorder with cross-platform settings
+      const recorder = new MediaRecorder(stream, {
+        mimeType,
+        audioBitsPerSecond: 128000,
+        bitsPerSecond: 128000
+      });
+
+      // Cross-platform cleanup handler
+      const cleanup = () => {
+        stream.getTracks().forEach(track => {
+          track.stop();
+          track.enabled = false;
+        });
+        setMediaRecorder(null);
+        setIsRecording(false);
+      };
+
+      // Handle iOS/Safari user interaction requirements
+      let interactionTimeout: NodeJS.Timeout;
+      if (isIOS || isSafari) {
+        interactionTimeout = setTimeout(() => {
+          toast.error("Please tap again to start recording!");
+          cleanup();
+        }, 300);
+      }
+
+      let audioChunks: Blob[] = [];
+      
       recorder.ondataavailable = (event) => {
-        console.log("🔹 ondataavailable event triggered:", event);
-
+        clearTimeout(interactionTimeout);
         if (event.data.size > 0) {
-          localChunks.push(event.data); // Push directly into local variable
-          setAudioChunks((prev) => [...prev, event.data]); // Update state (but don't rely on it here)
-          console.log("✅ Adding chunk:", event.data);
-        } else {
-          console.warn("⚠️ Empty audio chunk received");
+          audioChunks.push(event.data);
         }
+      };
+
+      recorder.onerror = (event) => {
+        console.error('Recording error:', event.error);
+        toast.error(`Recording failed: ${event.error?.message || 'Unknown error'}`);
+        cleanup();
       };
 
       recorder.onstart = () => {
-        console.log("▶️ Recording started");
+        console.log('Recording started');
+        setAudioChunks([]);
       };
 
       recorder.onstop = async () => {
-        console.log("⏹️ Recording stopped");
-
-        if (localChunks.length === 0) {
-          console.warn("❌ No audio recorded");
-          return;
-        }
-
-        const audioBlob = new Blob(localChunks, { type: "audio/webm" });
-        setAudioChunks([]); // Reset state after using localChunks
-
         try {
+          console.log("⏹️ Recording stopped");
+
+          if (audioChunks.length === 0) {
+            console.warn("❌ No audio recorded");
+            return;
+          }
+
+          const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+          setAudioChunks([]); // Reset state after using audioChunks
+
           setLoading(true);
 
           // Step 1: Send audio to Deepgram for transcription
@@ -170,20 +219,147 @@ const Chat = () => {
 
           setInput("");
         } catch (error) {
-          console.error("❌ Error processing voice input:", error);
-          toast.error("Failed to process voice input");
+          console.error('Processing error:', error);
+          toast.error(error instanceof Error ? error.message : 'Processing failed');
         } finally {
-          setLoading(false);
+          cleanup();
         }
       };
 
-      recorder.start();
+      // Start recording with platform-appropriate time slice
+      const timeSlice = isIOS ? 1000 : 250; // iOS needs larger chunks
+      recorder.start(timeSlice);
       setIsRecording(true);
-    } catch (error) {
-      console.error("❌ Error starting recording:", error);
-      toast.error("Failed to start recording");
+      setMediaRecorder(recorder);
+
+    } catch (error: any) {
+      console.error('Recording setup error:', error);
+      
+      const errorMap: Record<string, string> = {
+        NotAllowedError: 'Microphone access denied - please allow microphone access',
+        NotFoundError: 'No microphone found',
+        NotSupportedError: 'Browser does not support audio recording',
+        SecurityError: 'Recording blocked by security settings',
+        TypeError: 'Invalid media constraints'
+      };
+
+      toast.error(errorMap[error.name] || `Recording failed: ${error.message}`);
+      setIsRecording(false);
+      setMediaRecorder(null);
     }
   };
+
+
+  // const handleStartRecording = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  //     console.log("🎙️ Audio stream:", stream);
+
+  //     const recorder = new MediaRecorder(stream);
+  //     console.log("📽️ MediaRecorder initialized:", recorder);
+
+  //     setMediaRecorder(recorder);
+
+  //     let localChunks: any[] = []; // Use a local array to store chunks
+
+  //     recorder.ondataavailable = (event) => {
+  //       console.log("🔹 ondataavailable event triggered:", event);
+
+  //       if (event.data.size > 0) {
+  //         localChunks.push(event.data); // Push directly into local variable
+  //         setAudioChunks((prev) => [...prev, event.data]); // Update state (but don't rely on it here)
+  //         console.log("✅ Adding chunk:", event.data);
+  //       } else {
+  //         console.warn("⚠️ Empty audio chunk received");
+  //       }
+  //     };
+
+  //     recorder.onstart = () => {
+  //       console.log("▶️ Recording started");
+  //     };
+
+  //     recorder.onstop = async () => {
+  //       console.log("⏹️ Recording stopped");
+
+  //       if (localChunks.length === 0) {
+  //         console.warn("❌ No audio recorded");
+  //         return;
+  //       }
+
+  //       const audioBlob = new Blob(localChunks, { type: "audio/webm" });
+  //       setAudioChunks([]); // Reset state after using localChunks
+
+  //       try {
+  //         setLoading(true);
+
+  //         // Step 1: Send audio to Deepgram for transcription
+  //         const formData = new FormData();
+  //         formData.append("audio", audioBlob);
+
+  //         const deepgramResponse = await fetch("https://api.deepgram.com/v1/listen", {
+  //           method: "POST",
+  //           headers: {
+  //             Authorization: `Token ${import.meta.env.VITE_DEEPGRAM_API_KEY}`,
+  //           },
+  //           body: formData,
+  //         });
+
+  //         if (!deepgramResponse.ok) {
+  //           throw new Error("Failed to transcribe audio");
+  //         }
+
+  //         const deepgramData = await deepgramResponse.json();
+  //         const transcribedText = deepgramData.results.channels[0].alternatives[0].transcript;
+
+  //         if (!transcribedText) {
+  //           toast.error("No transcription available");
+  //           return;
+  //         }
+
+  //         // Step 2: Send transcription to GPT
+  //         const gptResponse = await sendMessageNoStreaming(transcribedText);
+  //         const gptText = typeof gptResponse === "string" ? gptResponse : "";
+
+  //         // Step 3: Convert GPT response to speech with ElevenLabs
+  //         const elevenLabsResponse = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
+  //           output_format: "mp3_44100_128",
+  //           text: gptText,
+  //           model_id: "eleven_multilingual_v2",
+  //         });
+
+  //         // Convert readable stream to ArrayBuffer
+  //         const readableToArrayBuffer = async (readable: any) => {
+  //           const chunks = [];
+  //           for await (const chunk of readable) {
+  //             chunks.push(typeof chunk === "string" ? new TextEncoder().encode(chunk) : chunk);
+  //           }
+  //           return new Blob(chunks).arrayBuffer();
+  //         };
+
+  //         const audioBuffer = await readableToArrayBuffer(elevenLabsResponse);
+  //         const audioContext = new AudioContext();
+  //         const audioSource = audioContext.createBufferSource();
+  //         const decodedAudio = await audioContext.decodeAudioData(audioBuffer);
+  //         audioSource.buffer = decodedAudio;
+  //         audioSource.connect(audioContext.destination);
+  //         audioSource.start();
+
+  //         setInput("");
+  //       } catch (error) {
+  //         console.error("❌ Error processing voice input:", error);
+  //         toast.error("Failed to process voice input");
+  //       } finally {
+  //         setLoading(false);
+  //       }
+  //     };
+
+  //     recorder.start();
+  //     setIsRecording(true);
+  //   } catch (error) {
+  //     console.error("❌ Error starting recording:", error);
+  //     toast.error("Failed to start recording");
+  //   }
+  // };
 
 
   const handleStopRecording = () => {
@@ -196,7 +372,7 @@ const Chat = () => {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Messages */}
-      <div className="pt-2 pb-2 h-[90%] overflow-y-scroll">
+      <div className="pt-2 pb-2 h-full   overflow-y-scroll">
         <div className="max-w-4xl mx-auto space-y-4">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
@@ -238,8 +414,11 @@ const Chat = () => {
       </div>
 
       {/* Message limit info */}
+      <div className='bottom-0 absolute w-full'>
+
+    
       {messageLimitInfo && !messageLimitInfo.isPremium && (
-        <div className="border-t border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 mb-20">
+        <div className="border-t border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 ">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-2 text-sm text-gray-400">
               <span>
@@ -267,7 +446,7 @@ const Chat = () => {
       )}
 
       {/* Input */}
-      <div className="absolute w-full bottom-0 border-t border-white/10 bg-white/5 backdrop-blur-sm p-4">
+      <div className=" w-full  border-t border-white/10 bg-white/5 backdrop-blur-sm p-4">
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
           <div className="relative flex items-center">
             <input
@@ -315,6 +494,7 @@ const Chat = () => {
             </button>
           </div>
         </form>
+      </div>
       </div>
     </div>
   );

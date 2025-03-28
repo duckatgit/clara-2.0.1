@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
   Target,
@@ -15,20 +15,18 @@ import {
   UserRoundCog,
   Trash2,
   Menu,
-  X
-} from 'lucide-react';
-import Chat3dIcon from "../../../src/assets/chat-3d.png"
-import Target3dIcon from "../../../src/assets/Target-3d.png"
-import LineChart3dIcon from "../../../src/assets/LineChart-3d.png"
-import Dumbbell3dIcon from "../../../src/assets/Dumbbell-3d.png"
-import Settings3dIcon from "../../../src/assets/Settings-3d.png"
-import Admin3dIcon from "../../../src/assets/Admin-3e.png"
-import { cn } from '../../utils/cn';
-import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
-import toast from 'react-hot-toast';
-
-
+  X,
+} from "lucide-react";
+import Chat3dIcon from "../../../src/assets/chat-3d.png";
+import Target3dIcon from "../../../src/assets/Target-3d.png";
+import LineChart3dIcon from "../../../src/assets/LineChart-3d.png";
+import Dumbbell3dIcon from "../../../src/assets/Dumbbell-3d.png";
+import Settings3dIcon from "../../../src/assets/Settings-3d.png";
+import Admin3dIcon from "../../../src/assets/Admin-3e.png";
+import { cn } from "../../utils/cn";
+import { useAuth } from "../../contexts/AuthContext";
+import { supabase } from "../../lib/supabase";
+import toast from "react-hot-toast";
 
 interface Conversation {
   id: string;
@@ -45,25 +43,30 @@ const Layout = () => {
   const [showMenu, setShowMenu] = useState(false); // State to toggle the hamburger menu
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth()
+  const { user } = useAuth();
   let width = screen.width;
-  console.log('width', width)
+  console.log("width", width);
   const navItems = [
-    { path: '/', icon: Chat3dIcon, label: 'Chat' },
-    { path: '/goals', icon: Target3dIcon, label: 'Goals' },
-    { path: '/insights', icon: LineChart3dIcon, label: 'Insights' },
-    { path: '/activities', icon: Dumbbell3dIcon, label: 'Activities' },
-    { path: '/settings', icon: Settings3dIcon, label: 'Settings' },
-    ...(user?.email === 'nivesh2@yopmail.com' ? [{ path: '/admin', icon: Admin3dIcon, label: 'Admin' }] : []),
+    { path: "/chat", icon: Chat3dIcon, label: "Chat" },
+    { path: "/goals", icon: Target3dIcon, label: "Goals" },
+    { path: "/insights", icon: LineChart3dIcon, label: "Insights" },
+    { path: "/activities", icon: Dumbbell3dIcon, label: "Activities" },
+    { path: "/settings", icon: Settings3dIcon, label: "Settings" },
+    ...(user?.email === "info@observantconvo.com"
+      ? [{ path: "/admin", icon: Admin3dIcon, label: "Admin" }]
+      : []),
   ];
   const loadConversations = async () => {
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) return;
       const { data, error } = await supabase
-        .from('conversations')
-        .select(`
+        .from("conversations")
+        .select(
+          `
           id,
           created_at,
           messages:messages(
@@ -71,31 +74,35 @@ const Layout = () => {
             role,
             created_at
           )
-        `)
-        .eq('user_id', session.user.id) // Add this line to ensure only user's conversations
-        .order('created_at', { ascending: false });
+        `
+        )
+        .eq("user_id", session.user.id) // Add this line to ensure only user's conversations
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      const processedConversations = data?.map(conv => {
-        const messages = conv.messages || [];
-        const firstUserMessage = messages.find(m => m.role === 'user')?.content || '';
-        const preview = firstUserMessage.length > 50
-          ? firstUserMessage.substring(0, 50) + '...'
-          : firstUserMessage;
+      const processedConversations =
+        data?.map((conv) => {
+          const messages = conv.messages || [];
+          const firstUserMessage =
+            messages.find((m) => m.role === "user")?.content || "";
+          const preview =
+            firstUserMessage.length > 50
+              ? firstUserMessage.substring(0, 50) + "..."
+              : firstUserMessage;
 
-        return {
-          id: conv.id,
-          title: new Date(conv.created_at).toLocaleDateString(),
-          preview,
-          created_at: conv.created_at
-        };
-      }) || [];
+          return {
+            id: conv.id,
+            title: new Date(conv.created_at).toLocaleDateString(),
+            preview,
+            created_at: conv.created_at,
+          };
+        }) || [];
 
       setConversations(processedConversations);
     } catch (error) {
-      console.error('Failed to load conversations:', error);
-      toast.error('Failed to load chat history');
+      console.error("Failed to load conversations:", error);
+      toast.error("Failed to load chat history");
     } finally {
       setLoading(false);
     }
@@ -105,37 +112,36 @@ const Layout = () => {
     e.stopPropagation();
     try {
       const { error } = await supabase
-        .from('conversations')
+        .from("conversations")
         .delete()
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) throw error;
 
-      setConversations(prev => prev.filter(conv => conv.id !== id));
-      toast.success('Conversation deleted');
+      setConversations((prev) => prev.filter((conv) => conv.id !== id));
+      toast.success("Conversation deleted");
     } catch (error) {
-      console.error('Failed to delete conversation:', error);
-      toast.error('Failed to delete conversation');
+      console.error("Failed to delete conversation:", error);
+      toast.error("Failed to delete conversation");
     }
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex flex-col w-screen">
+    <div className=" bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex flex-col w-screen" style={{height:"100dvh"}}>
       {/* Sidebar */}
-      <div className='w-full flex justify-center z-50 h-[10%]'>
-
+      <div className="w-full flex justify-center z-50 h-[10%]">
         {/* Desktop Version */}
-        <div className="fixed bg-white/5  border-r border-white/10 w-1/2  rounded-lg h-[10%] xs:hidden lg:block">
+        <div className="fixed   border-white/10 w-1/2  rounded-lg h-[10%] xs:hidden lg:block">
           <div className="flex items-center justify-center h-full w-full ">
             {/* Logo */}
-            <div className="p-2">
+            {/* <div className="p-2">
               <div className="p-3 rounded-xl bg-white/5">
                 <Brain className="w-8 h-8 text-violet-400" />
               </div>
-            </div>
+            </div> */}
 
             {/* Navigation */}
-            <nav className="flex w-full justify-center items-center gap-2">
+            <nav className="flex  justify-center items-center gap-2">
               {navItems.map(({ path, icon: Icon, label }) => (
                 <NavLink
                   key={path}
@@ -166,22 +172,26 @@ const Layout = () => {
             </nav>
 
             {/* History Toggle */}
-            <button
-              onClick={() => {
-                setShowHistory(prev => {
-                  if (!prev) loadConversations();
-                  return !prev;
-                });
-              }}
+            <div
               className={cn(
-                "p-3 rounded-xl",
-                "text-gray-400 hover:text-white",
+                "flex flex-col justify-center text-center",
+                "text-gray-400 hover:text-white flex justify-center",
                 "transition-colors duration-200",
                 showHistory && "text-white bg-white/10"
               )}
             >
-              <History className="w-6 h-6" />
-            </button>
+              <button
+                onClick={() => {
+                  setShowHistory((prev) => {
+                    if (!prev) loadConversations();
+                    return !prev;
+                  });
+                }}
+              >
+                <History className="w-6 h-6" />
+              </button>
+              <span className={cn("text-xs mt-1")}>History</span>
+            </div>
 
             {/* Sign Out */}
             <button
@@ -200,7 +210,7 @@ const Layout = () => {
         {/* Mobile version */}
         <div className="fixed bg-white/5  border-r border-white/10 w-full  rounded-lg h-[10%] pt-3 lg-pt:0 xs:block lg:hidden">
           <div className="flex items-center justify-between">
-            <div className='flex items-center'>
+            <div className="flex items-center">
               <div className="p-3 rounded-xl bg-white/5">
                 <Brain className="w-8 h-8 text-violet-400" />
               </div>
@@ -211,13 +221,15 @@ const Layout = () => {
               onClick={() => setShowMenu((prev) => !prev)}
               className="p-2 rounded-lg text-gray-400 hover:text-white transition-colors duration-200 lg:hidden"
             >
-              {showMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {showMenu ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
-
         </div>
       </div>
-
 
       {/* History Sidebar */}
       <AnimatePresence>
@@ -233,7 +245,7 @@ const Layout = () => {
                 <h2 className="text-lg font-medium text-white">Chat History</h2>
                 <button
                   onClick={() => {
-                    setShowHistory(false)
+                    setShowHistory(false);
                   }}
                   className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white"
                 >
@@ -259,14 +271,16 @@ const Layout = () => {
                         "transition-colors duration-200"
                       )}
                       onClick={() => {
-                        navigate('/', { state: { conversationId: conv.id } });
+                        navigate("/", { state: { conversationId: conv.id } });
                         setShowHistory(false);
                       }}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
                           <MessageSquare className="w-4 h-4 text-violet-400" />
-                          <span className="text-sm text-gray-300">{conv.title}</span>
+                          <span className="text-sm text-gray-300">
+                            {conv.title}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <button
@@ -279,7 +293,7 @@ const Layout = () => {
                         </div>
                       </div>
                       <p className="text-sm text-gray-400 line-clamp-2">
-                        {conv.preview || 'No preview available'}
+                        {conv.preview || "No preview available"}
                       </p>
                     </motion.div>
                   ))
@@ -302,9 +316,9 @@ const Layout = () => {
       <AnimatePresence>
         {showMenu && (
           <motion.div
-            initial={{ x: '-100%', opacity: 0 }}
+            initial={{ x: "-100%", opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: '-100%', opacity: 0 }}
+            exit={{ x: "-100%", opacity: 0 }}
             className="fixed inset-y-0 left-0 w-64 bg-white/5 backdrop-blur-2xl border-r border-white/10  flex flex-col p-4 space-y-4 z-50"
           >
             {/* Navigation */}
@@ -315,16 +329,16 @@ const Layout = () => {
                   to={path}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center space-x-4 p-3 rounded-lg',
-                      'text-gray-400 hover:text-white hover:bg-white/10',
-                      'transition-colors duration-200',
-                      isActive && 'text-white bg-white/10'
+                      "flex items-center space-x-4 p-3 rounded-lg",
+                      "text-gray-400 hover:text-white hover:bg-white/10",
+                      "transition-colors duration-200",
+                      isActive && "text-white bg-white/10"
                     )
                   }
                   onClick={() => setShowMenu(false)} // Close menu on navigation
                 >
                   {/* <Icon className="w-6 h-6" /> */}
-                  <img src={Icon} alt="..." className='w-10 h-10' />
+                  <img src={Icon} alt="..." className="w-10 h-10" />
                   <span>{label}</span>
                 </NavLink>
               ))}
@@ -332,13 +346,21 @@ const Layout = () => {
 
             {/* History Toggle */}
             <button
+              // onClick={() => {
+              //   setShowMenu(false); // Close menu when toggling history
+              // }}
               onClick={() => {
-                setShowMenu(false); // Close menu when toggling history
+                setShowMenu(false);
+                setShowHistory((prev) => {
+                  if (!prev) loadConversations();
+                  return !prev;
+                });
+                
               }}
               className={cn(
-                'flex items-center space-x-4 p-3 rounded-lg',
-                'text-gray-400 hover:text-white hover:bg-white/10',
-                'transition-colors duration-200'
+                "flex items-center space-x-4 p-3 rounded-lg",
+                "text-gray-400 hover:text-white hover:bg-white/10",
+                "transition-colors duration-200"
               )}
             >
               <History className="w-6 h-6" />
@@ -349,9 +371,9 @@ const Layout = () => {
             <button
               onClick={signOut}
               className={cn(
-                'flex items-center space-x-4 p-3 rounded-lg',
-                'text-gray-400 hover:text-white hover:bg-white/10',
-                'transition-colors duration-200'
+                "flex items-center space-x-4 p-3 rounded-lg",
+                "text-gray-400 hover:text-white hover:bg-white/10",
+                "transition-colors duration-200"
               )}
             >
               <LogOut className="w-6 h-6" />
@@ -361,7 +383,7 @@ const Layout = () => {
         )}
       </AnimatePresence>
       {/* Main Content */}
-      <div className="w-full overflow-x-hidden pt-2 h-[90%] ">
+      <div className="w-full overflow-x-hidden pt-2 h-[90%] " >
         <Outlet />
       </div>
     </div>

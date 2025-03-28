@@ -254,7 +254,7 @@ const Insights = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen  flex items-center justify-center">
         <div className="flex items-center space-x-2 text-white">
           <Loader2 className="w-6 h-6 animate-spin" />
           <span>Loading insights...</span>
@@ -326,7 +326,7 @@ const Insights = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <div className="min-h-screen ">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Insights</h1>
